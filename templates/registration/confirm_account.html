@@ -1,0 +1,14 @@
+{% extends 'homepage/base.html' %}
+{% block title %}Подтверждение регистрации{% endblock %}
+{% load static %}
+{% block content %}
+
+    <div class="container-sm" style="max-width: 50%; margin-top: 20px">
+        <div class="alert alert-light text-center" role="alert">
+
+            <h4>Ваш аккаунт активирован. </h4>
+            <a href="{% url 'login' %}">Войти</a>
+
+        </div>
+    </div>
+{% endblock %}

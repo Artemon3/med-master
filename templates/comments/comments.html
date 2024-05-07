@@ -1,0 +1,37 @@
+{% extends 'homepage/base.html' %}
+{% block title %}Отзывы{% endblock %}
+
+{% block content %}
+<main>
+
+    <div class="profile">
+        <h1>Отзывы</h1>
+
+        {% for el in card_comments.card_comments_set.all %}
+
+            <div class="alert alert-info" role="alert">
+                <h4 class="alert-heading"> {{ el.user }} </h4>
+                <hr>
+                <p> {{ el.comment }} </p>
+                <p class="mb-0"> {{ el.data }} </p>
+            </div>
+        {% endfor %}
+
+    <br>
+    <br>
+        {%  if card_comments.card_comments_set.count == 0 %}
+        <p>Вы можете оставить первый отзыв</p>
+    {% endif %}
+
+
+            <br>
+
+            <button type="button" class="btn btn-primary btn-sm"><a class="p-3 text-white" href="{% url 'creat_comments' card_comments.id %}">
+                Добавить отзыв </a></button>
+
+            <button type="button" class="btn btn-secondary btn-sm"><a class="p-3 text-white" href="{% url 'home' %}">
+                Назад </a>
+            </button>
+    <div>
+</main>
+{% endblock %}

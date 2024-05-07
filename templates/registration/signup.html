@@ -1,0 +1,27 @@
+{% extends 'homepage/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block title %}Регистация{% endblock %}
+{% block content %}
+
+    <main class="form-signin">
+        <div class="profile">
+            <br>
+            <div class="container-sm" style="max-width: 40%">
+                <form method="post" action="{% url 'signup' %}">
+                    <h2>Регистрация</h2>
+                    {% csrf_token %}
+
+                    {{ form|crispy }}
+                    <br>
+                    <div class="btn-group" role="group" aria-label="Basic example">
+                        <button type="submit" class="btn btn-outline-success">Зарегистрироваться</button>
+                        <a type="button" href="" class="btn btn-outline-secondary">Назад</a>
+                    </div>
+                </form>
+                <br>
+            </div>
+        </div>
+    </main>
+
+{% endblock %}

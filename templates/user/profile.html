@@ -1,0 +1,122 @@
+{% extends 'homepage/base.html' %}
+{% load static %}
+{% block title %}Профиль{% endblock %}
+{% block content %}
+
+    <div class="container" style="margin-top: 20px; max-width: 70%">
+        <div class="main-body">
+
+            <h1>Личный кабинет</h1>
+
+            <div class="row gutters-sm">
+                <div class="col-md-4 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex flex-column align-items-center text-center">
+                                <img src="{{ user.avatar.url }}" alt="Admin" class="rounded-circle" width="150">
+                                <div class="mt-3">
+                                    <h4>{{ user.first_name }} {{ user.last_name }}</h4>
+                                    <h6 class="text-secondary mb-1">Записи на прием к врачу</h6>
+                                    {% for record in user.patient_record.all %}
+                                        {% for time in record.time_patient.all %}
+                                            <hr>
+                                            <div class="card" style="width: 18rem; border: 1px solid green">
+                                                <div class="card-body">
+                                                    <ul class="list-group list-group-flush" style="text-align: left;">
+                                                        <li class="list-group-item text-secondary mb-1">Время: {{ time.time }}</li>
+                                                        <li class="list-group-item text-secondary mb-1">Дата: {{ time.daterecord }}</li>
+                                                        <li class="list-group-item text-secondary mb-1">Врач: {{ time.card }}</li>
+                                                    </ul>
+{#                                                    <p class="text-muted font-size-sm">Время: {{ time.time }}</p>#}
+{#                                                    <p class="text-muted font-size-sm">Дата: {{ time.daterecord }}</p>#}
+{#                                                    <p class="text-muted font-size-sm">Врач: {{ time.card }}</p>#}
+                                                    {#                                                    <a href="#" class="card-link">Card link</a>#}
+                                                    <a href="#">Подробнее</a>
+                                                </div>
+                                            </div>
+
+                                            {#                      <button class="btn btn-primary">Follow</button>#}
+                                            {#                      <button class="btn btn-outline-primary">Message</button>#}
+                                        {% endfor %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-md-8">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Ф.И.О:</h6>
+                                </div>
+                                <div class="col-sm-9 text-secondary">
+                                    {{ user.last_name }} {{ user.first_name }} {{ user.patronymic }}
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Дата рождения:</h6>
+                                </div>
+                                <div class="col-sm-9 text-secondary">
+                                    {{ user.date }}
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Email:</h6>
+                                </div>
+                                <div class="col-sm-9 text-secondary">
+                                    {{ user.email }}
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Телефон:</h6>
+                                </div>
+                                <div class="col-sm-9 text-secondary">
+                                    {{ user.phone }}
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Страховой полис:</h6>
+                                </div>
+                                <div class="col-sm-9 text-secondary">
+                                    {{ user.insurance }}
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Адрес проживания:</h6>
+                                </div>
+                                <div class="col-sm-9 text-secondary">
+                                    {{ user.residential_address }}
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <a class="btn btn-warning " href="{% url 'profile_update' user.username %}">Редактировать</a>
+                                    <a class="btn btn-info " href="{% url 'logout' %}">Выйти</a>
+                                    <a href="{% url 'password_change' %}" style="text-align: right; color: gray; font-size: 14px;">Изменить пароль</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+{% endblock %}
+

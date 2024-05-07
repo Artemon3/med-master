@@ -1,0 +1,24 @@
+{% extends 'homepage/base.html' %}
+{% block title %}Вход{% endblock %}
+{% load static %}
+{% block content %}
+    {% load crispy_forms_tags %}
+    <div class="profile">
+        <br>
+        <br>
+        <div class="form-signin">
+            <div class="container-sm" style="max-width: 30%">
+                <h2>Авторизация</h2>
+                <p>Если у вас еще нет аккаунта, пожалуйста <a href="{% url 'signup' %}">зарегистрируйтесь</a></p>
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <br>
+                    <input type="submit" class="btn btn-outline-success" value="Войти">
+                    <a href="{% url 'password_reset' %}">Забыли пароль?</a>
+                    <br>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

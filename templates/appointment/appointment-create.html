@@ -1,0 +1,26 @@
+{% extends 'homepage/base.html' %}
+{% load crispy_forms_filters %}
+
+{% load static %}
+{% block title %}Запись на прием{% endblock %}
+
+{% block content %}
+    <div class="container-sm" style="max-width: 50%">
+        <h1>Форма записи на прием </h1>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.name|as_crispy_field }}
+            <br>
+            {{ form.email|as_crispy_field }}
+            <br>
+            {{ form.insurance|as_crispy_field }}
+            <br>
+            {{ form.phone|as_crispy_field }}
+            <br>
+            <button class="btn btn-success" type="submit"> Сохранить</button>
+            <a href="{% url 'card_list' %}"
+               class="btn btn-secondary btn-sm">Отмена</a>
+        </form>
+    </div>
+
+{% endblock %}

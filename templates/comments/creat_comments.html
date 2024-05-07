@@ -1,0 +1,36 @@
+{% extends 'homepage/base.html' %}
+{% block title %}Отзывы{% endblock %}
+
+{% block content %}
+
+<main>
+    <div class="profile">
+        <div class="features animate__animated animate__backInDown">
+            {% if user.is_authenticated %}
+                <h1>Форма по добавлению отзыва </h1>
+                <form method="post">
+                    {% csrf_token %}
+
+                    <br>
+                    {{ form.comment }}
+
+                    <br>
+                    <span> {{ error }}</span>
+                    <button class="btn btn-success" type="submit"> Сохранить</button>
+                    <a href="javascript:history.go(-1)"
+                                                                              class="btn btn-secondary btn-sm">Отмена</a>
+
+                </form>
+            {% else %}
+                <br>
+                <br>
+                <br>
+                <span> Оставлять отзывы могут только авторизованные пользователи</span>
+                <a href="{% url 'login' %}">Войти / </a><a href="{% url 'home' %}">На главную</a>
+            {% endif %}
+            <br>
+            <br>
+        </div>
+</main>
+
+{% endblock %}
