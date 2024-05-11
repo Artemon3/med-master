@@ -1,30 +1,30 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.views import PasswordResetView, PasswordResetConfirmView, LoginView, PasswordChangeView
+from django.http import Http404
+from django.shortcuts import render
+from django.urls import reverse_lazy
 from django.utils.encoding import force_text
 from django.utils.http import urlsafe_base64_decode
 from django.views import View
-from django.http import Http404
-from django.contrib.auth.tokens import default_token_generator
-from django.shortcuts import render
 from django.views.generic import UpdateView, CreateView
 
 from .forms import ProfilePatientForm, RegistrationForm, LoginForm, PasswordResetUserForm, SetPasswordUserForm, \
     PasswordChangeUserForm
 from .models import ProfilePatient
-from .service import create_mail_activate_account
 
 
 class LoginUserView(LoginView):
     form_class = LoginForm
 
     def get_success_url(self):
-        return f"/account/{self.request.POST.get('username', '')}"
+        return f"/account/"
 
 
 class RegisterView(CreateView):
     form_class = RegistrationForm
     template_name = 'registration/signup.html'
-    success_url = 'activate'
-
+    success_url = reverse_lazy('login')
 
 
 class PasswordChangeUserView(PasswordChangeView):
@@ -53,30 +53,20 @@ class ProfileActivate(View):
         return render(request, 'registration/confirm_account.html')
 
 
-class ProfileDetail(View):
+class ProfileDetail(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
-        try:
-            user = ProfilePatient.objects.prefetch_related(
-                'patient_record__time_patient',
-                'patient_record__time_patient__daterecord',
-                'patient_record__time_patient__card',
-            ).get(username=request.user.username, is_active=True)
-        except:
-            raise Http404
         context = {
-            'user': user,
+            'user': request.user,
         }
         return render(request, 'user/profile.html', context)
 
 
-class ProfileUpdateView(UpdateView):
+class ProfileUpdateView(LoginRequiredMixin, UpdateView):
     form_class = ProfilePatientForm
     template_name = 'user/profile_update.html'
-    slug_field = 'username'
-    slug_url_kwarg = 'username'
 
     def get_success_url(self):
-        return f"/account/{self.request.user.username}/"
+        return f"/account/"
 
-    def get_queryset(self):
-        return ProfilePatient.objects.filter(username=self.request.user.username, is_active=True)
+    def get_object(self):
+        return self.request.user

@@ -1,7 +1,15 @@
+from datetime import timedelta
+
+from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import Q
+from django.utils import timezone
+
 from user.models import ProfilePatient
 
 NULLABLE = {'blank': True, 'null': True}
+
 
 class Card(models.Model):
     photo = models.ImageField('Изображение', upload_to='static/', **NULLABLE)
@@ -11,18 +19,6 @@ class Card(models.Model):
 
     def __str__(self):
         return self.name
-
-
-class DateRecord(models.Model):
-    date = models.DateField('Дата приема', blank=True, null=True)
-    weekday = models.CharField(verbose_name='День недели', max_length=50, blank=True, null=True)
-
-    def __str__(self):
-        return str(self.date)
-
-    class Meta:
-        verbose_name = 'Дата приема'
-        verbose_name_plural = 'Даты приема'
 
 
 class Patient(models.Model):
@@ -38,11 +34,6 @@ class Patient(models.Model):
         blank=True, null=True
     )
 
-    def delete(self, *args, **kwargs):
-        time = TimeRecord.objects.filter(patient=self)
-        time.update(recorded=False)
-        super(Patient, self).delete(*args, **kwargs)
-
     def __str__(self):
         return self.name
 
@@ -51,38 +42,50 @@ class Patient(models.Model):
         verbose_name_plural = 'Пациенты'
 
 
-class TimeRecord(models.Model):
-    time = models.TimeField(verbose_name='Время приема')
-    daterecord = models.ForeignKey(
-        DateRecord,
-        on_delete=models.CASCADE,
-        verbose_name='Дата приема',
-        related_name='timerecord',
-        blank=True,
-        null=True
-    )
-    card = models.ForeignKey(
-        Card,
-        on_delete=models.CASCADE,
-        verbose_name='Врач',
-        blank=True,
-        null=True,
-        related_name='card_time'
-    )
-    patient = models.ForeignKey(
-        Patient,
-        on_delete=models.SET_NULL,
-        verbose_name='Пациент',
-        blank=True,
-        null=True,
-        related_name='time_patient'
-    )
-    date_now = models.DateTimeField(verbose_name='Время создания записи', auto_now_add=True)
-    recorded = models.BooleanField(default=False)
+class VisitManager(models.Manager):
+    def overlapping_ranges(self, start_time, end_time):
+        return self.get_queryset().filter(
+            Q(start_time__lte=start_time, end_time__gt=start_time) |
+            Q(start_time__lt=end_time, end_time__gte=end_time) |
+            Q(start_time__gte=start_time, end_time__lte=end_time)
+        )
 
-    def __str__(self):
-        return str(self.time)
+
+class VisitTypes(models.TextChoices):
+    NEW = 'NEW', 'новый'
+    AWAITING_PAYMENT = 'AWAITING_PAYMENT', 'не оплачен'
+    PAID = 'PAID', 'оплачен'
+    COMPLETED = 'COMPLETED', 'завершен'
+    CANCEL = 'CANCEL', 'отменен'
+
+
+class Visit(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    user = models.ForeignKey(ProfilePatient, on_delete=models.CASCADE, related_name='visits',
+                             verbose_name='Пользователь')
+    start_time = models.DateTimeField(verbose_name='Время начала')
+    end_time = models.DateTimeField(verbose_name='Время окончания')
+    status = models.CharField(max_length=20, choices=VisitTypes.choices, blank=True)
+    card = models.ForeignKey(Card, on_delete=models.PROTECT, related_name='visits', verbose_name='Doctor')
+    comment = models.TextField(max_length=500, verbose_name='Комментарий', blank=True)
+
+    objects = models.Manager()
+    card_objects = VisitManager()
 
     class Meta:
-        verbose_name = 'Время записи'
-        verbose_name_plural = 'Время записи'
+        verbose_name = 'Посещение'
+        verbose_name_plural = 'Посещения'
+
+    def clean(self):
+        now = timezone.now()
+
+        if self.end_time <= now:
+            raise ValidationError('Запись на указанное время завершена')
+
+        if self.start_time.minute % settings.STEP_TIME_MINUTES != 0 and self.start_time.second != 0:
+            raise ValidationError('Некорректная дата или время начала')
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super().save(*args, **kwargs)

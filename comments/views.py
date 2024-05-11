@@ -1,30 +1,31 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 
-from homepage.models import Card
+from comments.forms import CommentsForm
+from appointment.models import Card
 
 
 class CommentsDetailViews(View):
-    def get(self, request, pk):
-        card_comments = Card.objects.get(id=pk)
-        return render(request, 'comments/comments.html', {'card_comments': card_comments})
+    def get(self, request, card_id):
+        card = get_object_or_404(Card, id=card_id)
+        return render(request, 'comments/comments.html', {'card': card})
 
 
-def create_comments(request, pk):
+def create_comments(request, card_id):
     error = ''
     if request.method == 'POST':
-        form = Card_commentsForm(request.POST)
+        form = CommentsForm(request.POST)
 
         if form.is_valid():
             form = form.save(commit=False)
-            form.card_id = pk
+            form.card_id = card_id
             form.user = request.user
             form.save()
             return redirect('/')
         else:
             error = 'Форма заполнена неверно'
 
-    form = Card_commentsForm()
+    form = CommentsForm()
     context = {'form': form,
                'error': error
                }
