@@ -1,61 +1,61 @@
-from django.contrib import messages
-from django.http import Http404
+from django.core.exceptions import ValidationError
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import ValidationError
+from django.core.paginator import Paginator
+from django.shortcuts import render, get_object_or_404
 from django.views.generic import CreateView
-from appointment.models import TimeRecord
-from .forms import PatientForm
-from django.shortcuts import render, redirect
 from django.views.generic.base import View
-from appointment.service import create_record, create_cards_list
-from .models import Card
+
+from appointment.models import Visit, Card
+from appointment.service import create_schedule
+from .forms import VisitForm
 
 
 class CardView(View):
     def get(self, request, **kwargs):
-        cards = Card.objects.all().prefetch_related('card_time')
-        create_record()
-        print(cards)
-        cards_list = create_cards_list(cards)
+        cards = Card.objects.all()
         context = {
-            'cards': cards_list,
+            'cards': cards,
         }
-        print(context)
         return render(request, 'appointment/card_list.html', context)
 
 
-class RecordTimeView(View):
-    def post(self, request, *args, **kwargs):
-        form = PatientForm(request.POST or None)
-        if form.is_valid():
-            time = TimeRecord.objects.filter(
-                daterecord__id=kwargs.get('p'),
-                card__id=kwargs.get('pk'),
-                id=kwargs.get('k')
-            )
-            new_form = form.save(commit=False)
-            new_form.name = form.cleaned_data['name']
-            new_form.insurance = form.cleaned_data['insurance']
-            new_form.phone = form.cleaned_data['phone']
-            new_form.user = request.user
-            form.save()
+class CardDetailView(LoginRequiredMixin, CreateView):
+    form_class = VisitForm
+    template_name = 'appointment/cabinets_detail.html'
+    pk_url_kwarg = 'card_id'
 
-            time.update(patient_id=new_form.id, recorded=True, card_id=kwargs.get('pk'))
-            messages.info(request, 'Вы успешно записались')
-            return redirect("card_list")
-        form = PatientForm()
-        context = {'form': form,
-                   }
-        return render(request, 'appointment/appointment-create.html', context)
+    def get_object(self, *args, **kwargs):
+        return get_object_or_404(Card, id=self.kwargs.get('card_id'))
 
-    def get(self, request, *args, **kwargs):
-        form = PatientForm()
-        time = TimeRecord.objects.get(
-            daterecord__id=kwargs.get('p'),
-            card__id=kwargs.get('pk'),
-            id=kwargs.get('k')
-        )
-        if time.recorded:
-            raise Http404
-        context = {'form': form,
-                   }
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        events = Visit.card_objects.filter(card_id=self.kwargs.get('card_id')).values()
+        schedule = Paginator(create_schedule(events), 7)
+        context['schedule'] = schedule
+        context['cabinet'] = self.get_object()
+        return context
 
-        return render(request, 'appointment/appointment-create.html', context)
+    def form_valid(self, form):
+        new_event = form.save(commit=False)
+        new_event.user = self.request.user
+        new_event.card = self.get_object()
+
+        try:
+            new_event.save()
+        except ValidationError as exp:
+            form.add_error(None, str(exp))
+            return render(self.request, 'appointment/cabinets_detail.html', self.get_context_data(form=form))
+        return render(self.request, 'appointment/cabinets_detail.html', self.get_context_data())
+
+
+class AboutView(View):
+    def get(self, request, **kwargs):
+        return render(request, 'homepage/about.html', )
+
+
+class ContactView(View):
+    def get(self, request, **kwargs):
+        return render(request, 'homepage/contacts.html', )
+
+

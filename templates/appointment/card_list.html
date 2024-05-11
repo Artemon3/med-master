@@ -15,7 +15,7 @@
     <div class="container">
         <h1>Наши специалисты</h1>
         <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
-            {% for card, appointment in cards.items %}
+            {% for card in cards %}
                 <div class="col">
                     <div class="card shadow-sm">
                         <img src="{{ card.photo.url }}" class="img-thumbnail" alt="...">
@@ -25,64 +25,14 @@
                             <p>Опыт работы: {{ card.work_experience }}</p>
                             <div class="d-flex justify-content-between align-items-center">
                                 <div class="btn-group">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#exampleModal-{{ card.id }}">
-                                        >Отзывы({{ card.card_comments_set.count }})
-                                    </button>
-                                    <button type="button" class="btn btn-sm btn-outline-secondary"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#exampleModal1-{{ card.id }}">
+                                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'comments' card.id %}">
+                                        Отзывы({{ card.comments.count }})
+                                    </a>
+                                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'booking' card.id %}">
                                         Записаться на прием
-                                    </button>
+                                    </a>
                                 </div>
 
-                            </div>
-                            <div class="modal fade" id="exampleModal1-{{ card.id }}" tabindex="-1"
-                                 aria-labelledby="exampleModalLabel"
-                                 aria-hidden="true">
-                                <div class="modal-dialog modal-xl" style="max-width: 68%">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="exampleModalLabel1-{{ card.id }}">Запись на
-                                                прием к врачу
-                                            </h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                    aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <h1 class="mb-3">Выберите дату и время</h1>
-                                            <div class="container">
-                                                <table class="table">
-                                                    <tbody>
-                                                    {% for date,times in appointment.items %}
-                                                        <tr>
-                                                            <th scope="row">{{ date.date|date:'d.m.y' }}<br>{{ date.weekday }}
-                                                            </th>
-                                                            <td>
-                                                                {% for time in times %}
-                                                                    {% if time.recorded == True %}
-                                                                        <button type="button" class="btn btn-outline-danger"
-                                                                                disabled>{{ time.time|time:"H:i" }}</button>
-                                                                    {% else %}
-                                                                        {% if request.user.is_authenticated %}
-                                                                        <a href="{% url 'record-create' time.card.id date.id time.id %}"
-                                                                           class="btn btn-outline-success ">{{ time.time|time:"H:i" }}</a>
-                                                                        {% else %}
-                                                                            <a href="{% url 'login' %}"
-                                                                           class="btn btn-outline-success ">{{ time.time|time:"H:i" }}</a>
-                                                                            {% endif %}
-                                                                    {% endif %}
-                                                                {% endfor %}
-                                                            </td>
-                                                        </tr>
-                                                    {% endfor %}
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>

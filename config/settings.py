@@ -22,8 +22,7 @@ INSTALLED_APPS = [
     'crispy_forms',
 
     'appointment',
-    # 'comments',
-    'homepage',
+    'comments',
     'user',
 ]
 
@@ -108,9 +107,13 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 AUTH_USER_MODEL = 'user.ProfilePatient'
-# LOGIN_REDIRECT_URL = '/accounts/'
-LOGOUT_REDIRECT_URL = 'card_list'
+LOGIN_REDIRECT_URL = 'login'
+LOGOUT_REDIRECT_URL = 'home'
 
 DATE_INPUT_FORMATS = ['%d.%m.%Y']
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+START_TIME = 9
+END_TIME = 18
+STEP_TIME_MINUTES = 30

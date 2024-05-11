@@ -6,7 +6,7 @@
         <div class="main-body">
 
             <h1>Личный кабинет</h1>
-            <form method="post" action="{% url 'profile_update' user.username %}">
+            <form method="post" action="{% url 'profile_update' %}">
                 {% csrf_token %}
                 <div class="row gutters-sm">
                     <div class="col-md-4 mb-3">
@@ -104,7 +104,7 @@
                                 <div class="row">
                                     <div class="col-sm-12">
                                         <button class="btn btn-warning " type="submit">Сохранить</button>
-                                        <a class="btn btn-info " target="__blank" href="{% url 'profile' user.username %}">Отменить</a>
+                                        <a class="btn btn-info " target="__blank" href="{% url 'profile' %}">Отменить</a>
                                     </div>
                                 </div>
                             </div>

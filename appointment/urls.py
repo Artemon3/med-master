@@ -1,8 +1,14 @@
+from . import views
 from django.urls import path
 
-from . import views
+from appointment.views import CardDetailView, AboutView, ContactView
 
 urlpatterns = [
-    path('specialists/', views.CardView.as_view(), name='card_list'),
-    path('create-record/<int:pk>/<int:p>/<int:k>/', views.RecordTimeView.as_view(), name='record-create'),
+    path('', views.CardView.as_view(), name='home'),
+    path("specialists/<int:card_id>/", CardDetailView.as_view(), name="booking"),
+    path("about/", AboutView.as_view(), name="about"),
+    path("contacts/", ContactView.as_view(), name="contacts"),
+
+
 ]
+

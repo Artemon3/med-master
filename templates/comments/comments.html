@@ -7,7 +7,7 @@
     <div class="profile">
         <h1>Отзывы</h1>
 
-        {% for el in card_comments.card_comments_set.all %}
+        {% for el in card.comments.all %}
 
             <div class="alert alert-info" role="alert">
                 <h4 class="alert-heading"> {{ el.user }} </h4>
@@ -19,17 +19,17 @@
 
     <br>
     <br>
-        {%  if card_comments.card_comments_set.count == 0 %}
+        {%  if card.comments.count == 0 %}
         <p>Вы можете оставить первый отзыв</p>
     {% endif %}
 
 
             <br>
 
-            <button type="button" class="btn btn-primary btn-sm"><a class="p-3 text-white" href="{% url 'creat_comments' card_comments.id %}">
+            <button type="button" class="btn btn-primary btn-sm"><a class="p-3 text-white" href="{% url 'create_comments' card.id %}">
                 Добавить отзыв </a></button>
 
-            <button type="button" class="btn btn-secondary btn-sm"><a class="p-3 text-white" href="{% url 'home' %}">
+            <button type="button" class="btn btn-secondary btn-sm"><a class="p-3 text-white" href="{% url 'card_list' %}">
                 Назад </a>
             </button>
     <div>
